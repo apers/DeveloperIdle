@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import './App.css';
 import TimedButton from "./UI/TimedButton";
 
-class Buttons extends Component {
+class Upgrades extends Component {
   constructor(props) {
     super(props);
 
@@ -16,21 +16,23 @@ class Buttons extends Component {
       updateCallback,
     } = this.props;
 
+    return null;
+
     const {} = this.state;
 
     const buttonsJsx = [];
-
-    for (let key in state.actions) {
-      const action = state.actions[key];
+    for (let key in state) {
+      const action = state[key];
 
       let tooltip = action.tooltipText;
       if (!action.hasTickFunction) {
-        tooltip += <br/> + "Produces: " + action.localStorage.value.production + " " + action.scoreLabel;
+        console.log(action);
+        tooltip += "<br>Produces: " + action.localStorage.value.production + " " + action.scoreLabel;
       }
       else {
-        tooltip += <br/> + "Produces: "
+        tooltip += "<br>Produces: "
             + action.localStorage.value.production
-            + " " + state.actions[action.localStorage.value.producesResources].scoreLabel
+            + " " + state[action.localStorage.value.producesResources].scoreLabel
             + " every tick"
       }
       if (action.localStorage.cost.amount) {
@@ -39,38 +41,39 @@ class Buttons extends Component {
 
       if (action.isButton && action.isButtonDisplayed(state)) {
         buttonsJsx.push(
-              <TimedButton
-                  tooltip={tooltip}
-                  onClick={() => action.clickFunction(state, updateCallback)}
-                  disabledTime={action.disabledTime}
-                  title={action.title}
-                  id={action.id}
-                  disabled={!action.isButtonEnabled(state)}
-                  logMessage={action.logMessage}
-              />
+            <TimedButton
+                tooltip={tooltip}
+                key={action.id}
+                onClick={() => action.clickFunction(state, updateCallback)}
+                disabledTime={action.disabledTime}
+                title={action.title}
+                id={action.id}
+                disabled={!action.isButtonEnabled(state)}
+                logMessage={action.logMessage}
+            />
         );
       }
     }
 
     return (
-        <div className="Buttons">
-          <h2>Actions</h2>
+        <div className="Upgrades">
+          <h2>Upgrades</h2>
           {buttonsJsx}
         </div>
     );
   }
 }
 
-Buttons.propTypes = {
+Upgrades.propTypes = {
   state: PropTypes.object,
   updateCallback: PropTypes.func,
 };
 
-Buttons.defaultProps = {
+Upgrades.defaultProps = {
   state: {},
   updateCallback: () => {
 
   }
 };
 
-export default Buttons;
+export default Upgrades;

@@ -2,6 +2,7 @@ import React, {Component} from "react";
 import PropTypes from "prop-types";
 import './TimedButton.css';
 import App from "../App";
+import Popover from 'react-simple-popover';
 
 class TimedButton extends Component {
   constructor(props) {
@@ -13,7 +14,7 @@ class TimedButton extends Component {
       percentage: 100,
     };
 
-    if(props.disabledTime !== 0) {
+    if (props.disabledTime !== 0) {
       this.state = {
         percentage: 100,
       };
@@ -30,7 +31,8 @@ class TimedButton extends Component {
           })
         }
       }, App.getTickTime());
-    } else {
+    }
+    else {
       this.state = {
         percentage: 0,
       };
@@ -44,11 +46,12 @@ class TimedButton extends Component {
       logMessage,
     } = this.props;
 
-    if(this.props.disabledTime !== 0) {
+    if (this.props.disabledTime !== 0) {
       this.setState({
         percentage: 100,
       });
-    } else {
+    }
+    else {
       this.setState({
         percentage: 0,
       });
@@ -61,6 +64,7 @@ class TimedButton extends Component {
     const {
       title,
       disabled,
+      tooltip,
     } = this.props;
 
     const {
@@ -74,14 +78,31 @@ class TimedButton extends Component {
     const className = ["TimedButton"];
 
     let buttonDisabled = percentage !== 0;
-    buttonDisabled = buttonDisabled ||  disabled;
+    buttonDisabled = buttonDisabled || disabled;
     if (buttonDisabled) {
       className.push("disabled");
     }
 
     return (
-        <div>
+        <div data-tip={tooltip}>
+          <Popover
+              placement="right"
+              container={this}
+              target={this.refs.target}
+              show={this.state.showPopover}
+          >
+          </Popover>
           <button
+              onMouseEnter={() => {
+                this.setState({
+                  showPopover: true,
+                })
+              }}
+              onMouseLeave={() => {
+                this.setState({
+                  showPopover: false,
+                })
+              }}
               disabled={buttonDisabled}
               style={style}
               className={className.join(" ")}
@@ -101,6 +122,7 @@ TimedButton.propTypes = {
   id: PropTypes.string.isRequired,
   logMessage: PropTypes.string,
   disabled: PropTypes.bool,
+  tooltip: PropTypes.string,
 };
 
 TimedButton.defaultProps = {
@@ -109,6 +131,7 @@ TimedButton.defaultProps = {
   },
   logMessage: "",
   disabled: false,
+  tooltip: null,
 };
 
 export default TimedButton;

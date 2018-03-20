@@ -1,23 +1,42 @@
 .App {
-  text-align: center;
-  display: flex;
-  flex-direction: row;
+    text-align: center;
+    display: flex;
+    flex-direction: row;
 }
 
-
 .App .log {
-  flex-grow: 1;
+    min-width: 400px;
+    max-width: 400px;
+    flex-grow: 1;
 }
 
 .App .buttons {
-  flex-grow: 4;
+    flex-grow: 4;
+    height: 100vh;
+}
 
+.App .buttons {
+    display: flex;
+    flex-direction: row;
+    margin-top: 50px;
+    border-left: solid #222222 1px;
+    border-right: solid #222222 1px;
 }
 
 .App .buttons .TimedButton {
-  margin-bottom: 15px;
+    margin-bottom: 15px;
 }
 
 .App .stats {
-  flex-grow: 4;
+    min-width: 400px;
+    max-width: 400px;
+    flex-grow: 1;
+}
+
+.Buttons {
+    flex-grow: 1;
+}
+
+.Upgrades {
+    flex-grow: 1;
 }

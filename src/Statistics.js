@@ -20,12 +20,12 @@ class Statistics extends Component {
 
 
     const statisticsJsx = [];
-    for (let key in state) {
-      let action = state[key];
+    for (let key in state.actions) {
+      let action = state.actions[key];
 
       if (action.isButton && action.isButtonDisplayed(state)) {
         statisticsJsx.push(
-            <p key={action.id}>{action.scoreLabel}: {action.localStorage.currentValue}</p>
+            <p key={action.id}>{action.scoreLabel}: {action.localStorage.value.current}</p>
         );
       }
     }

@@ -1,2 +1,6 @@
-.Log {
+.content {
+    min-width: 300px;
+    max-width: 300px;
+    align-items: center;
+    justify-content: center;
 }

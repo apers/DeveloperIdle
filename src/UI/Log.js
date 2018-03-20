@@ -10,7 +10,6 @@ class Log extends Component {
     this.state = {};
   }
 
-
   render() {
     const {
       logMessages,
@@ -21,13 +20,13 @@ class Log extends Component {
     } = this.state;
 
     const logJsx = logMessages.map((message, index) => {
-      return <p key={message+index} style={{opacity: 1/index}}>{message}</p>
+      return <p key={message + index} style={{opacity: 1 / index}}>{message}</p>
     });
 
     return (
-      <div className="Log">
-        {logJsx}
-      </div>
+        <div className="Log">
+          {logJsx}
+        </div>
     );
   }
 }

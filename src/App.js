@@ -1,19 +1,17 @@
 import React, {Component} from 'react';
-import './App.css';
-import TimedButton from "./UI/TimedButton";
-import {
-  decrementValue, incrementValue, initializeStorage, load, loadConfigFromStorage, loadNumber, loadState,
-  save, updateLocalStorage
-} from "./Storage/storageUtil";
 import Log from "./UI/Log";
 import Buttons from "./Buttons";
 import Statistics from "./Statistics";
+import {updateLocalStorage} from "./Storage/storageUtil";
+import {loadState} from "./Storage/stateUtil";
+import './App.css';
+import Upgrades from "./Upgrades";
 
 class App extends Component {
   constructor(props) {
     super(props);
 
-    this.handleButtonClick = this.handleButtonClick.bind(this);
+    this.handleUpdate = this.handleUpdate.bind(this);
 
     this.state = {
       loaded: true,
@@ -25,8 +23,8 @@ class App extends Component {
       let gameState = this.state.gameState;
       for (let key in gameState) {
         let action = gameState[key];
-        if(action.hasTickFunction) {
-          action.tickFunction(gameState)
+        if (action.hasTickFunction) {
+          action.tickFunction(gameState, this.handleUpdate);
 
           this.setState({
             gameState: gameState,
@@ -40,9 +38,12 @@ class App extends Component {
     return 500;
   }
 
-  handleButtonClick(message, newState) {
-    this.state.logMessages.unshift(message);
-    let oldLog = this.state.logMessages.slice(0,20);
+  handleUpdate(message, newState) {
+
+    if (message) {
+      this.state.logMessages.unshift(message);
+    }
+    let oldLog = this.state.logMessages.slice(0, 20);
 
     this.setState({
       logMessages: oldLog,
@@ -69,13 +70,16 @@ class App extends Component {
             </div>
             <div className="container buttons">
               <Buttons
-                  updateCallback={this.handleButtonClick}
+                  updateCallback={this.handleUpdate}
+                  state={this.state.gameState}
+              />
+              <Upgrades
+                  updateCallback={this.handleUpdate}
                   state={this.state.gameState}
               />
             </div>
             <div className="container stats">
               <Statistics
-                  onClick={this.handleButtonClick}
                   state={this.state.gameState}
               />
             </div>
