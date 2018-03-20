@@ -14,26 +14,35 @@ export function loadState() {
   return initializeState();
 }
 
-
 export function initializeStorageState() {
   save("lastVisited", new Date());
 
   save("LOC", {
     allTimeValue: 0,
     currentValue: 0,
-    disabledTime: 1,
+    //disabledTime: 1,
+    disabledTime: 0,
   });
 
   save("NOK", {
     allTimeValue: 0,
     currentValue: 0,
-    disabledTime: 5,
+    //disabledTime: 5,
+    disabledTime: 0,
   });
 
   save("INTERN", {
     allTimeValue: 0,
     currentValue: 0,
-    disabledTime: 15,
+    //disabledTime: 15,
+    disabledTime: 0,
+  });
+
+  save("INTERNMANAGER", {
+    allTimeValue: 0,
+    currentValue: 0,
+    //disabledTime: 60,
+    disabledTime: 0,
   });
 }
 
@@ -41,6 +50,7 @@ export function updateLocalStorage(state) {
   save("LOC", state["LOC"].localStorage);
   save("NOK", state["NOK"].localStorage);
   save("INTERN", state["INTERN"].localStorage);
+  save("INTERNMANAGER", state["INTERNMANAGER"].localStorage);
 }
 
 export function initializeState() {
@@ -74,7 +84,7 @@ export function initializeState() {
       id: "NOK",
       title: "Sell software (10 LOC)",
       scoreLabel: "NOK",
-      logMessage: "You sell software to unsuspecting customers" ,
+      logMessage: "You sell software to unsuspecting customers",
       isButton: true,
       localStorage: load("NOK"),
       disabledTime: load("NOK").disabledTime,
@@ -115,10 +125,36 @@ export function initializeState() {
         state["INTERN"].localStorage.allTimeValue += 1;
         state["NOK"].localStorage.currentValue -= 5000;
         updateCallback(state["INTERN"].logMessage, state);
-        },
+      },
       tickFunction: (state) => {
-        state["LOC"].localStorage.currentValue += 1 * state["INTERN"].localStorage.currentValue ;
-        state["LOC"].localStorage.allTimeValue += 1 * state["INTERN"].localStorage.currentValue ;
+        state["LOC"].localStorage.currentValue += 1 * state["INTERN"].localStorage.currentValue;
+        state["LOC"].localStorage.allTimeValue += 1 * state["INTERN"].localStorage.currentValue;
+      }
+    },
+    "INTERNMANAGER": {
+      id: "INTERNMANAGER",
+      title: "Hire junior recruiter",
+      scoreLabel: "Junior recruiters",
+      logMessage: "I am a specialist IT Head-Hunter currently recruiting bla bla bla",
+      isButton: true,
+      localStorage: load("INTERNMANAGER"),
+      disabledTime: load("INTERNMANAGER").disabledTime,
+      hasTickFunction: true,
+      isButtonDisplayed: (state) => {
+        return state["INTERN"].localStorage.allTimeValue >= 5;
+      },
+      isButtonEnabled: (state) => {
+        return state["NOK"].localStorage.currentValue >= 15000;
+      },
+      clickFunction: (state, updateCallback) => {
+        state["INTERNMANAGER"].localStorage.currentValue += 1;
+        state["INTERNMANAGER"].localStorage.allTimeValue += 1;
+        state["NOK"].localStorage.currentValue -= 15000;
+        updateCallback(state["INTERNMANAGER"].logMessage, state);
+      },
+      tickFunction: (state) => {
+        state["INTERN"].localStorage.currentValue += 1 * state["INTERNMANAGER"].localStorage.currentValue;
+        state["INTERN"].localStorage.allTimeValue += 1 * state["INTERNMANAGER"].localStorage.currentValue;
       }
     },
   };
