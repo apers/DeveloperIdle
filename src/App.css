@@ -1,0 +1,23 @@
+.App {
+  text-align: center;
+  display: flex;
+  flex-direction: row;
+}
+
+
+.App .log {
+  flex-grow: 1;
+}
+
+.App .buttons {
+  flex-grow: 4;
+
+}
+
+.App .buttons .TimedButton {
+  margin-bottom: 15px;
+}
+
+.App .stats {
+  flex-grow: 4;
+}

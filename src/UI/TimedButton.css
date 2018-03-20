@@ -1,0 +1,14 @@
+.TimedButton {
+    padding: 0 5px 0 5px;
+    min-width: 130px;
+    height: 30px;
+    border: #222222 solid 1px;
+    margin: 0;
+    font-size: 1.2rem;
+
+}
+
+.TimedButton.disabled {
+    color: #868686;
+    border: #868686 solid 1px;
+}
