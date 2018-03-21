@@ -1,0 +1,33 @@
+.ToolTipYolk {
+  display: inline;
+  position: relative;
+}
+.ToolTipYolk i {
+  color: #bedcff;
+  font-size: 150%;
+  cursor: default;
+}
+.ToolTipYolk .hover-tool-tip {
+  display: none;
+  position: absolute;
+  top: -5px;
+  left: 200px;
+  min-width: 250px;
+  background: #c5d7dd;
+  text-align: left !important;
+  padding: 5px 8px;
+  border-radius: 6px;
+  box-shadow: 0 0 20px #c5d7dd;
+  z-index: 100;
+}
+.ToolTipYolk .hover-tool-tip.hover-tool-tip-left {
+  left: auto;
+  right: 18px;
+}
+.ToolTipYolk .hover-tool-tip.hover-tool-tip-up {
+  top: auto;
+  bottom: -5px;
+}
+.ToolTipYolk:hover .hover-tool-tip {
+  display: block;
+}

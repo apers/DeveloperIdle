@@ -21,8 +21,8 @@ class App extends Component {
 
     setInterval(() => {
       let gameState = this.state.gameState;
-      for (let key in gameState) {
-        let action = gameState[key];
+      for (let key in gameState.actions) {
+        let action = gameState.actions[key];
         if (action.hasTickFunction) {
           action.tickFunction(gameState, this.handleUpdate);
 

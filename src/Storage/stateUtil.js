@@ -10,26 +10,6 @@ export function loadState() {
   return initializeState();
 }
 
-function payAndAddResource(addResourceName, costResourceName, state) {
-  const addResource = state[addResourceName].localStorage;
-
-  addResource.value.current += addResource.value.production;
-  addResource.value.allTime += addResource.value.production;
-
-  if (costResourceName && addResource.cost.name) {
-    const costResource = state[costResourceName].localStorage;
-    costResource.value.current -= addResource.cost.amount;
-  }
-}
-
-function tickFunction(tickResourceName, state) {
-  let tickResource = state[tickResourceName].localStorage;
-  let productionResource = state[tickResource.value.producesResources].localStorage;
-
-  productionResource.value.current += tickResource.value.production * tickResource.value.current;
-  productionResource.value.allTime += tickResource.value.production * tickResource.value.current;
-}
-
 function isDisplayed(resourceName, state) {
   let resourceStorage = state[resourceName].localStorage;
   let costStorage = state[resourceStorage.cost.name].localStorage;
@@ -56,7 +36,7 @@ export function initializeGameStateStorage() {
       production: 10,
     },
     cost: {
-      name: null,
+      name: "",
       amount: 0,
       displayAtValue: 0,
     },
@@ -82,13 +62,33 @@ export function initializeGameStateStorage() {
       current: 0,
       allTime: 0,
       production: 1,
-      producesResources: "LOC",
     },
     cost: {
       name: "NOK",
       amount: 10000,
       displayAtValue: 5000,
     },
+    production: {
+
+    }
+  });
+
+  save("SPAM", {
+    disabledTime: 15,
+    value: {
+      current: 0,
+      allTime: 0,
+      production: 1,
+    },
+    cost: {
+      name: "NOK",
+      amount: 3000,
+      displayAtValue: 1500,
+    },
+    production: {
+      cost: 50,
+      amount: 500,
+    }
   });
 
   save("INTERNMANAGER", {
@@ -97,11 +97,10 @@ export function initializeGameStateStorage() {
       current: 0,
       allTime: 0,
       production: 1,
-      producesResources: "INTERN",
     },
     cost: {
       name: "NOK",
-      amount: 20000,
+      amount: 50000,
       displayAtValue: 15000,
     },
   });
@@ -132,7 +131,9 @@ export function initializeState() {
           return true;
         },
         clickFunction: (state, updateCallback) => {
-          payAndAddResource("LOC", null, state.actions);
+          const locStorage = state.actions["LOC"].localStorage;
+          locStorage.value.current += locStorage.value.production;
+          locStorage.value.allTime += locStorage.value.production;
           updateCallback(state.actions["LOC"].logMessage, state);
         },
         tickFunction: () => {
@@ -155,7 +156,15 @@ export function initializeState() {
           return isEnabled("NOK", state.actions);
         },
         clickFunction: (state, updateCallback) => {
-          payAndAddResource("NOK", "LOC", state.actions);
+          const nokStorage = state.actions["NOK"].localStorage;
+          const locStorage = state.actions["LOC"].localStorage;
+
+
+          nokStorage.value.current += nokStorage.value.production;
+          nokStorage.value.allTime += nokStorage.value.production;
+
+          locStorage.value.current -= nokStorage.cost.amount;
+
           updateCallback(state.actions["NOK"].logMessage, state);
         },
         tickFunction: () => {
@@ -178,11 +187,58 @@ export function initializeState() {
           return isEnabled("INTERN", state.actions);
         },
         clickFunction: (state, updateCallback) => {
-          payAndAddResource("INTERN", "NOK", state.actions);
+          const internStorage = state.actions["INTERN"].localStorage;
+          const nokStorage = state.actions["NOK"].localStorage;
+
+
+          internStorage.value.current += internStorage.value.production;
+          internStorage.value.allTime += internStorage.value.production;
+
+          nokStorage.value.current -= internStorage.cost.amount;
+
           updateCallback(state.actions["INTERN"].logMessage, state);
         },
         tickFunction: (state, updateCallback) => {
-          tickFunction("INTERN", state.actions);
+          updateCallback(null, state);
+        }
+      },
+      "SPAM": {
+        id: "SPAM",
+        title: "Buy spambots",
+        tooltipText: "Send illicit spam to sell software",
+        scoreLabel: "Spambots",
+        logMessage: "I am Dr. Bakare Tunde, the cousin of Nigerian Astronaut, Air Force Major Abacha Tunde..",
+        isButton: true,
+        localStorage: load("SPAM"),
+        disabledTime: load("SPAM").disabledTime,
+        hasTickFunction: true,
+        isButtonDisplayed: (state) => {
+          return isDisplayed("SPAM", state.actions)
+        },
+        isButtonEnabled: (state) => {
+          return isEnabled("SPAM", state.actions);
+        },
+        clickFunction: (state, updateCallback) => {
+          const spamStorage = state.actions["SPAM"].localStorage;
+          const nokStorage = state.actions["NOK"].localStorage;
+
+          spamStorage.value.current += spamStorage.value.production;
+          spamStorage.value.allTime += spamStorage.value.production;
+
+          nokStorage.value.current -= spamStorage.cost.amount;
+
+          updateCallback(state.actions["SPAM"].logMessage, state);
+        },
+        tickFunction: (state, updateCallback) => {
+          const spamStorage = state.actions["SPAM"].localStorage;
+          const locStorage = state.actions["LOC"].localStorage;
+          const nokStorage = state.actions["NOK"].localStorage;
+
+          if(locStorage.value.current >= spamStorage.production.cost) {
+            locStorage.value.current -= spamStorage.value.current * spamStorage.production.cost;
+            nokStorage.value.current += spamStorage.value.current * spamStorage.production.amount;
+          }
+
           updateCallback(null, state);
         }
       },
@@ -203,11 +259,9 @@ export function initializeState() {
           return isEnabled("INTERNMANAGER", state.actions);
         },
         clickFunction: (state, updateCallback) => {
-          payAndAddResource("INTERNMANAGER", "NOK", state.actions);
           updateCallback(state["INTERNMANAGER"].logMessage, state);
         },
         tickFunction: (state, updateCallback) => {
-          tickFunction("INTERNMANAGER", state.actions);
           updateCallback(null, state);
         }
       },

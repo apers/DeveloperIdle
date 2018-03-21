@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import './TimedButton.css';
 import App from "../App";
 import Popover from 'react-simple-popover';
+import ToolTipYolk from "./ToolTipYolk";
 
 class TimedButton extends Component {
   constructor(props) {
@@ -85,31 +86,28 @@ class TimedButton extends Component {
 
     return (
         <div data-tip={tooltip}>
-          <Popover
-              placement="right"
-              container={this}
-              target={this.refs.target}
-              show={this.state.showPopover}
+          <ToolTipYolk
+            message={tooltip}
           >
-          </Popover>
-          <button
-              onMouseEnter={() => {
-                this.setState({
-                  showPopover: true,
-                })
-              }}
-              onMouseLeave={() => {
-                this.setState({
-                  showPopover: false,
-                })
-              }}
-              disabled={buttonDisabled}
-              style={style}
-              className={className.join(" ")}
-              onClick={this.handleClick}
-          >
-            <div className="title">{title}</div>
-          </button>
+            <button
+                onMouseEnter={() => {
+                  this.setState({
+                    showPopover: true,
+                  })
+                }}
+                onMouseLeave={() => {
+                  this.setState({
+                    showPopover: false,
+                  })
+                }}
+                disabled={buttonDisabled}
+                style={style}
+                className={className.join(" ")}
+                onClick={this.handleClick}
+            >
+              <div className="title">{title}</div>
+            </button>
+          </ToolTipYolk>
         </div>
     );
   }
@@ -122,7 +120,7 @@ TimedButton.propTypes = {
   id: PropTypes.string.isRequired,
   logMessage: PropTypes.string,
   disabled: PropTypes.bool,
-  tooltip: PropTypes.string,
+  tooltip: PropTypes.oneOfType([PropTypes.string, PropTypes.element])
 };
 
 TimedButton.defaultProps = {

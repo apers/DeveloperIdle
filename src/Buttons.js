@@ -23,31 +23,25 @@ class Buttons extends Component {
     for (let key in state.actions) {
       const action = state.actions[key];
 
-      let tooltip = action.tooltipText;
-      if (!action.hasTickFunction) {
-        tooltip += <br/> + "Produces: " + action.localStorage.value.production + " " + action.scoreLabel;
-      }
-      else {
-        tooltip += <br/> + "Produces: "
-            + action.localStorage.value.production
-            + " " + state.actions[action.localStorage.value.producesResources].scoreLabel
-            + " every tick"
-      }
-      if (action.localStorage.cost.amount) {
-        tooltip += "<br>Cost: " + action.localStorage.cost.amount + " " + action.localStorage.cost.name;
-      }
+      const tooltip =
+          <div>
+            <div>{action.tooltipText}</div>
+            <div>{"Produces: " + action.localStorage.value.production + " " + action.scoreLabel}</div>
+            <div>{"Cost: " + action.localStorage.cost.amount + " " + action.localStorage.cost.name}</div>
+          </div>;
 
       if (action.isButton && action.isButtonDisplayed(state)) {
         buttonsJsx.push(
-              <TimedButton
-                  tooltip={tooltip}
-                  onClick={() => action.clickFunction(state, updateCallback)}
-                  disabledTime={action.disabledTime}
-                  title={action.title}
-                  id={action.id}
-                  disabled={!action.isButtonEnabled(state)}
-                  logMessage={action.logMessage}
-              />
+            <TimedButton
+                key={action.id}
+                tooltip={tooltip}
+                onClick={() => action.clickFunction(state, updateCallback)}
+                disabledTime={action.disabledTime}
+                title={action.title}
+                id={action.id}
+                disabled={!action.isButtonEnabled(state)}
+                logMessage={action.logMessage}
+            />
         );
       }
     }

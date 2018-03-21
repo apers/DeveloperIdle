@@ -16,7 +16,7 @@ class Upgrades extends Component {
       updateCallback,
     } = this.props;
 
-    return null;
+    return <h2>Upgrades</h2>;
 
     const {} = this.state;
 
