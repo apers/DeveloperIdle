@@ -45,8 +45,8 @@ export function initializeGameStateStorage() {
   save("NOK", {
     disabledTime: 5,
     value: {
-      current: 0,
-      allTime: 0,
+      current: 10000000,
+      allTime: 10000000,
       production: 1000,
     },
     cost: {
@@ -69,7 +69,7 @@ export function initializeGameStateStorage() {
       displayAtValue: 5000,
     },
     production: {
-
+      amount: 5,
     }
   });
 
@@ -86,8 +86,8 @@ export function initializeGameStateStorage() {
       displayAtValue: 1500,
     },
     production: {
-      cost: 50,
-      amount: 500,
+      cost: 1,
+      amount: 10,
     }
   });
 
@@ -170,38 +170,6 @@ export function initializeState() {
         tickFunction: () => {
         }
       },
-      "INTERN": {
-        id: "INTERN",
-        title: "Hire summer intern",
-        tooltipText: "Hire a cheap, error prone summer intern.",
-        scoreLabel: "Summer interns",
-        logMessage: "To the java mines code monkey!",
-        isButton: true,
-        localStorage: load("INTERN"),
-        disabledTime: load("INTERN").disabledTime,
-        hasTickFunction: true,
-        isButtonDisplayed: (state) => {
-          return isDisplayed("INTERN", state.actions)
-        },
-        isButtonEnabled: (state) => {
-          return isEnabled("INTERN", state.actions);
-        },
-        clickFunction: (state, updateCallback) => {
-          const internStorage = state.actions["INTERN"].localStorage;
-          const nokStorage = state.actions["NOK"].localStorage;
-
-
-          internStorage.value.current += internStorage.value.production;
-          internStorage.value.allTime += internStorage.value.production;
-
-          nokStorage.value.current -= internStorage.cost.amount;
-
-          updateCallback(state.actions["INTERN"].logMessage, state);
-        },
-        tickFunction: (state, updateCallback) => {
-          updateCallback(null, state);
-        }
-      },
       "SPAM": {
         id: "SPAM",
         title: "Buy spambots",
@@ -234,10 +202,53 @@ export function initializeState() {
           const locStorage = state.actions["LOC"].localStorage;
           const nokStorage = state.actions["NOK"].localStorage;
 
-          if(locStorage.value.current >= spamStorage.production.cost) {
-            locStorage.value.current -= spamStorage.value.current * spamStorage.production.cost;
-            nokStorage.value.current += spamStorage.value.current * spamStorage.production.amount;
+          if(spamStorage.value.current !== 0 && locStorage.value.current >= spamStorage.production.cost) {
+            let botsThatCanSell = Math.floor(locStorage.value.current/spamStorage.production.cost);
+            botsThatCanSell = Math.min(botsThatCanSell, spamStorage.valueOf.current);
+
+            console.log(botsThatCanSell);
+            locStorage.value.current -= botsThatCanSell * spamStorage.production.cost;
+            nokStorage.value.current += botsThatCanSell * spamStorage.production.amount;
+            nokStorage.value.allTime += botsThatCanSell * spamStorage.production.amount;
           }
+
+          updateCallback(null, state);
+        }
+      },
+      "INTERN": {
+        id: "INTERN",
+        title: "Hire summer intern",
+        tooltipText: "Hire a cheap, error prone summer intern.",
+        scoreLabel: "Summer interns",
+        logMessage: "To the java mines code monkey!",
+        isButton: true,
+        localStorage: load("INTERN"),
+        disabledTime: load("INTERN").disabledTime,
+        hasTickFunction: true,
+        isButtonDisplayed: (state) => {
+          return isDisplayed("INTERN", state.actions)
+        },
+        isButtonEnabled: (state) => {
+          return isEnabled("INTERN", state.actions);
+        },
+        clickFunction: (state, updateCallback) => {
+          const internStorage = state.actions["INTERN"].localStorage;
+          const nokStorage = state.actions["NOK"].localStorage;
+
+
+          internStorage.value.current += internStorage.value.production;
+          internStorage.value.allTime += internStorage.value.production;
+
+          nokStorage.value.current -= internStorage.cost.amount;
+
+          updateCallback(state.actions["INTERN"].logMessage, state);
+        },
+        tickFunction: (state, updateCallback) => {
+          const internStorage = state.actions["INTERN"].localStorage;
+          const locStorage = state.actions["LOC"].localStorage;
+
+          locStorage.value.current += internStorage.value.current * internStorage.production.amount;
+          locStorage.value.allTime += internStorage.value.current * internStorage.production.amount;
 
           updateCallback(null, state);
         }
