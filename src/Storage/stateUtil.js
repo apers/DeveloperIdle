@@ -56,23 +56,6 @@ export function initializeGameStateStorage() {
     },
   });
 
-  save("INTERN", {
-    disabledTime: 30,
-    value: {
-      current: 0,
-      allTime: 0,
-      production: 1,
-    },
-    cost: {
-      name: "NOK",
-      amount: 10000,
-      displayAtValue: 5000,
-    },
-    production: {
-      amount: 5,
-    }
-  });
-
   save("SPAM", {
     disabledTime: 15,
     value: {
@@ -86,8 +69,30 @@ export function initializeGameStateStorage() {
       displayAtValue: 1500,
     },
     production: {
-      cost: 1,
+      name: "NOK",
       amount: 10,
+      costName: "LOC",
+      cost: 1,
+    },
+  });
+
+  save("INTERN", {
+    disabledTime: 30,
+    value: {
+      current: 0,
+      allTime: 0,
+      production: 1,
+    },
+    cost: {
+      name: "NOK",
+      amount: 10000,
+      displayAtValue: 5000,
+    },
+    production: {
+      name: "LOC",
+      amount: 5,
+      costName: "NOK",
+      cost: 0,
     }
   });
 
@@ -102,6 +107,12 @@ export function initializeGameStateStorage() {
       name: "NOK",
       amount: 50000,
       displayAtValue: 15000,
+    },
+    production: {
+      name: "INTERN",
+      amount: 1,
+      costName: "NOK",
+      cost: 10000,
     },
   });
 
@@ -175,7 +186,7 @@ export function initializeState() {
         title: "Buy spambots",
         tooltipText: "Send illicit spam to sell software",
         scoreLabel: "Spambots",
-        logMessage: "I am Dr. Bakare Tunde, the cousin of Nigerian Astronaut, Air Force Major Abacha Tunde..",
+        logMessage: "I am contacting you for business opportunity!",
         isButton: true,
         localStorage: load("SPAM"),
         disabledTime: load("SPAM").disabledTime,
@@ -206,7 +217,6 @@ export function initializeState() {
             let botsThatCanSell = Math.floor(locStorage.value.current/spamStorage.production.cost);
             botsThatCanSell = Math.min(botsThatCanSell, spamStorage.value.current);
 
-            console.log(botsThatCanSell);
             locStorage.value.current -= botsThatCanSell * spamStorage.production.cost;
             nokStorage.value.current += botsThatCanSell * spamStorage.production.amount;
             nokStorage.value.allTime += botsThatCanSell * spamStorage.production.amount;
@@ -220,7 +230,7 @@ export function initializeState() {
         title: "Hire summer intern",
         tooltipText: "Hire a cheap, error prone summer intern.",
         scoreLabel: "Summer interns",
-        logMessage: "To the java mines code monkey!",
+        logMessage: "To the java mines code monkey..",
         isButton: true,
         localStorage: load("INTERN"),
         disabledTime: load("INTERN").disabledTime,
@@ -270,12 +280,30 @@ export function initializeState() {
           return isEnabled("INTERNMANAGER", state.actions);
         },
         clickFunction: (state, updateCallback) => {
-          updateCallback(state["INTERNMANAGER"].logMessage, state);
+          const internManagerStorage = state.actions["INTERNMANAGER"].localStorage;
+          const nokStorage = state.actions["NOK"].localStorage;
+
+          internManagerStorage.value.current += internManagerStorage.value.production;
+          internManagerStorage.value.allTime += internManagerStorage.value.production;
+
+          nokStorage.value.current -= internManagerStorage.cost.amount;
+
+          updateCallback(state.actions["INTERNMANAGER"].logMessage, state);
         },
         tickFunction: (state, updateCallback) => {
+          const internManagerStorage = state.actions["INTERNMANAGER"].localStorage;
+          const internStorage = state.actions["INTERN"].localStorage;
+
+          internStorage.value.current += internManagerStorage.value.current * internManagerStorage.production.amount;
+          internStorage.value.allTime += internManagerStorage.value.current * internManagerStorage.production.amount;
+
           updateCallback(null, state);
         }
       },
     }
   };
+}
+
+export function getScoreLabel(actionName, state) {
+  return state.actions[actionName].scoreLabel;
 }
