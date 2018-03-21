@@ -204,7 +204,7 @@ export function initializeState() {
 
           if(spamStorage.value.current !== 0 && locStorage.value.current >= spamStorage.production.cost) {
             let botsThatCanSell = Math.floor(locStorage.value.current/spamStorage.production.cost);
-            botsThatCanSell = Math.min(botsThatCanSell, spamStorage.valueOf.current);
+            botsThatCanSell = Math.min(botsThatCanSell, spamStorage.value.current);
 
             console.log(botsThatCanSell);
             locStorage.value.current -= botsThatCanSell * spamStorage.production.cost;
