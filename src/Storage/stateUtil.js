@@ -54,8 +54,8 @@ export function initializeGameStateStorage() {
     hasBeenVisible: false,
     disabledTime: 5,
     value: {
-      current: 0,
-      allTime: 0,
+      current: 500000,
+      allTime: 500000,
       production: 1000,
     },
     cost: {
@@ -101,7 +101,7 @@ export function initializeGameStateStorage() {
     },
     production: {
       name: "LOC",
-      amount: 5,
+      amount: 2,
       costName: "NOK",
       cost: 0,
     }
@@ -166,7 +166,7 @@ export function initializeState() {
 
           if(nokStorage.value.current >= 3000 && !state.upgrades["ADDERALL"].localStorage.hasBeenVisible) {
             state.upgrades["ADDERALL"].localStorage.hasBeenVisible = true;
-            updateCallback(state.upgrades["FUNCTIONAL"].logMessage, state);
+            updateCallback(null, state);
           }
 
           return state.upgrades["ADDERALL"].localStorage.hasBeenVisible && !state.upgrades["ADDERALL"].localStorage.active;
@@ -199,7 +199,7 @@ export function initializeState() {
 
           if(nokStorage.value.current >= 10000 && !state.upgrades["FUNCTIONAL"].localStorage.hasBeenVisible) {
             state.upgrades["FUNCTIONAL"].localStorage.hasBeenVisible = true;
-            updateCallback(state.upgrades["FUNCTIONAL"].logMessage, state);
+            updateCallback(null, state);
           }
 
           return state.upgrades["FUNCTIONAL"].localStorage.hasBeenVisible && !state.upgrades["FUNCTIONAL"].localStorage.active;
@@ -215,24 +215,27 @@ export function initializeState() {
       "CLOUD": {
         id: "CLOUD",
         title: "Spam cloud",
-        tooltipText: <div><p>Roy makes you adopt functional programming.</p><p>More software in fewer lines. You sell your LOC for double price.</p><p>Cost: 15000 NOK</p></div>,
-        logMessage: "Lets spend more time thinking than typing..",
+        tooltipText: <div><p>Alexander moves your spam bots to AWS doubling their production.</p><p>Cost: 30000 NOK</p></div>,
+        logMessage: "I love the smell of server configuration in the morning!",
         localStorage: load("CLOUD"),
         clickFunction: (state, updateCallback) => {
           const nokStorage = state.actions["NOK"].localStorage;
+          const spamBotStorage = state.actions["SPAM"].localStorage;
           state.upgrades["CLOUD"].localStorage.active = true;
 
-          nokStorage.value.current -= 15000;
-          nokStorage.value.production *= 2;
+          nokStorage.value.current -= 30000;
+
+          spamBotStorage.production.amount = 20;
+          spamBotStorage.production.cost = 2;
 
           updateCallback(state.upgrades["CLOUD"].logMessage, state);
         },
         isButtonDisplayed: (state, updateCallback) => {
           const nokStorage = state.actions["NOK"].localStorage;
 
-          if(nokStorage.value.current >= 10000 && !state.upgrades["CLOUD"].localStorage.hasBeenVisible) {
+          if(nokStorage.value.current >= 30000 && !state.upgrades["CLOUD"].localStorage.hasBeenVisible) {
             state.upgrades["CLOUD"].localStorage.hasBeenVisible = true;
-            updateCallback(state.upgrades["CLOUD"].logMessage, state);
+            updateCallback(null, state);
           }
 
           return state.upgrades["CLOUD"].localStorage.hasBeenVisible && !state.upgrades["CLOUD"].localStorage.active;

@@ -18,4 +18,5 @@ export function updateLocalStorage(state) {
   // Upgrades
   save("ADDERALL", state.upgrades["ADDERALL"].localStorage);
   save("FUNCTIONAL", state.upgrades["FUNCTIONAL"].localStorage);
+  save("CLOUD", state.upgrades["CLOUD"].localStorage);
 }
