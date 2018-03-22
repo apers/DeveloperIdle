@@ -16,40 +16,25 @@ class Upgrades extends Component {
       updateCallback,
     } = this.props;
 
-    return <h2>Upgrades</h2>;
-
     const {} = this.state;
 
     const buttonsJsx = [];
-    for (let key in state) {
-      const action = state[key];
+    for (let key in state.upgrades) {
+      const upgrade = state.upgrades[key];
 
-      let tooltip = action.tooltipText;
-      if (!action.hasTickFunction) {
-        console.log(action);
-        tooltip += "<br>Produces: " + action.localStorage.value.production + " " + action.scoreLabel;
-      }
-      else {
-        tooltip += "<br>Produces: "
-            + action.localStorage.value.production
-            + " " + state[action.localStorage.value.producesResources].scoreLabel
-            + " every tick"
-      }
-      if (action.localStorage.cost.amount) {
-        tooltip += "<br>Cost: " + action.localStorage.cost.amount + " " + action.localStorage.cost.name;
-      }
+      let tooltip = upgrade.tooltipText;
 
-      if (action.isButton && action.isButtonDisplayed(state)) {
+      if (upgrade.isButtonDisplayed(state, updateCallback) && !upgrade.isUpgradeActive(state)) {
         buttonsJsx.push(
             <TimedButton
                 tooltip={tooltip}
-                key={action.id}
-                onClick={() => action.clickFunction(state, updateCallback)}
-                disabledTime={action.disabledTime}
-                title={action.title}
-                id={action.id}
-                disabled={!action.isButtonEnabled(state)}
-                logMessage={action.logMessage}
+                key={upgrade.id}
+                onClick={() => upgrade.clickFunction(state, updateCallback)}
+                title={upgrade.title}
+                id={upgrade.id}
+                disabledTime={0}
+                disabled={!upgrade.isButtonEnabled(state)}
+                logMessage={upgrade.logMessage}
             />
         );
       }

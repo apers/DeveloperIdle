@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import Log from "./UI/Log";
 import Buttons from "./Buttons";
 import Statistics from "./Statistics";
-import {updateLocalStorage} from "./Storage/storageUtil";
+import {save, updateLocalStorage} from "./Storage/storageUtil";
 import {loadState} from "./Storage/stateUtil";
 import './App.css';
 import Upgrades from "./Upgrades";

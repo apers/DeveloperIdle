@@ -43,8 +43,6 @@ class TimedButton extends Component {
   handleClick() {
     const {
       onClick,
-      id,
-      logMessage,
     } = this.props;
 
     if (this.props.disabledTime !== 0) {
@@ -58,7 +56,7 @@ class TimedButton extends Component {
       });
     }
 
-    onClick(id, logMessage);
+    onClick();
   }
 
   render() {
@@ -118,7 +116,6 @@ TimedButton.propTypes = {
   disabledTime: PropTypes.number.isRequired,
   onClick: PropTypes.func.isRequired,
   id: PropTypes.string.isRequired,
-  logMessage: PropTypes.string,
   disabled: PropTypes.bool,
   tooltip: PropTypes.oneOfType([PropTypes.string, PropTypes.element])
 };

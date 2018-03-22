@@ -47,7 +47,7 @@ class ToolTipYolk extends PureComponent {
   }
 
   render() {
-    const {
+    let {
       message,
       children
     } = this.props;

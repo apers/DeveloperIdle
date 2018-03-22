@@ -1,5 +1,7 @@
 import {load, save} from "./storageUtil";
 import {CURRENT_VERSION, migrate} from "./migrationUtil";
+import * as React from "react";
+import App from "../App";
 
 export function loadState() {
   if (!load("lastVisited")) {
@@ -10,11 +12,15 @@ export function loadState() {
   return initializeState();
 }
 
-function isDisplayed(resourceName, state) {
+function isDisplayed(resourceName, state, updateCallback) {
   let resourceStorage = state[resourceName].localStorage;
   let costStorage = state[resourceStorage.cost.name].localStorage;
 
-  return costStorage.value.allTime >= resourceStorage.cost.displayAtValue;
+  if(costStorage.value.current >= resourceStorage.cost.displayAtValue && !resourceStorage.hasBeenVisible) {
+    resourceStorage.hasBeenVisible = true;
+  }
+
+  return resourceStorage.hasBeenVisible;
 }
 
 function isEnabled(resourceName, state) {
@@ -29,7 +35,9 @@ export function initializeGameStateStorage() {
   save("version", CURRENT_VERSION);
 
   save("LOC", {
+    hasBeenVisible: true,
     disabledTime: 1,
+
     value: {
       current: 0,
       allTime: 0,
@@ -43,10 +51,11 @@ export function initializeGameStateStorage() {
   });
 
   save("NOK", {
+    hasBeenVisible: false,
     disabledTime: 5,
     value: {
-      current: 10000000,
-      allTime: 10000000,
+      current: 0,
+      allTime: 0,
       production: 1000,
     },
     cost: {
@@ -57,27 +66,8 @@ export function initializeGameStateStorage() {
   });
 
   save("SPAM", {
-    disabledTime: 15,
-    value: {
-      current: 0,
-      allTime: 0,
-      production: 1,
-    },
-    cost: {
-      name: "NOK",
-      amount: 3000,
-      displayAtValue: 1500,
-    },
-    production: {
-      name: "NOK",
-      amount: 10,
-      costName: "LOC",
-      cost: 1,
-    },
-  });
-
-  save("INTERN", {
-    disabledTime: 30,
+    hasBeenVisible: false,
+    disabledTime: 60,
     value: {
       current: 0,
       allTime: 0,
@@ -89,6 +79,27 @@ export function initializeGameStateStorage() {
       displayAtValue: 5000,
     },
     production: {
+      name: "NOK",
+      amount: 10,
+      costName: "LOC",
+      cost: 1,
+    },
+  });
+
+  save("INTERN", {
+    hasBeenVisible: false,
+    disabledTime: 30,
+    value: {
+      current: 0,
+      allTime: 0,
+      production: 1,
+    },
+    cost: {
+      name: "NOK",
+      amount: 30000,
+      displayAtValue: 20000,
+    },
+    production: {
       name: "LOC",
       amount: 5,
       costName: "NOK",
@@ -97,7 +108,8 @@ export function initializeGameStateStorage() {
   });
 
   save("INTERNMANAGER", {
-    disabledTime: 2 * 60,
+    hasBeenVisible: false,
+    disabledTime: 4 * 60,
     value: {
       current: 0,
       allTime: 0,
@@ -105,8 +117,8 @@ export function initializeGameStateStorage() {
     },
     cost: {
       name: "NOK",
-      amount: 50000,
-      displayAtValue: 15000,
+      amount: 500000,
+      displayAtValue: 100000,
     },
     production: {
       name: "INTERN",
@@ -116,13 +128,123 @@ export function initializeGameStateStorage() {
     },
   });
 
-  save("", {})
+  save("ADDERALL", {
+    active: false,
+    hasBeenVisible: false,
+  });
+  save("FUNCTIONAL", {
+    active: false,
+    hasBeenVisible: false,
+  });
+  save("CLOUD", {
+    active: false,
+    hasBeenVisible: false,
+  });
 }
 
 export function initializeState() {
   return {
-    upgradeState: {
+    upgrades: {
+      "ADDERALL": {
+        id: "ADDERALL",
+        title: "Adderall",
+        tooltipText: <div><p>Get a prescription for adderall.</p><p>You produce 25 LOC every click.</p><p>Cost: 5000 NOK</p></div>,
+        logMessage: "Side effects include loss of appetite, weight loss, dry mouth, stomach upset/pain, nausea/vomiting, dizziness....",
+        localStorage: load("ADDERALL"),
+        clickFunction: (state, updateCallback) => {
+          const locStorage = state.actions["LOC"].localStorage;
+          const nokStorage = state.actions["NOK"].localStorage;
+          state.upgrades["ADDERALL"].localStorage.active = true;
 
+          nokStorage.value.current -= 5000;
+
+          locStorage.value.production = 25;
+          updateCallback(state.upgrades["ADDERALL"].logMessage, state);
+        },
+        isButtonDisplayed: (state, updateCallback) => {
+          const nokStorage = state.actions["NOK"].localStorage;
+
+          if(nokStorage.value.current >= 3000 && !state.upgrades["ADDERALL"].localStorage.hasBeenVisible) {
+            state.upgrades["ADDERALL"].localStorage.hasBeenVisible = true;
+            updateCallback(state.upgrades["FUNCTIONAL"].logMessage, state);
+          }
+
+          return state.upgrades["ADDERALL"].localStorage.hasBeenVisible && !state.upgrades["ADDERALL"].localStorage.active;
+        },
+        isButtonEnabled: (state) => {
+          const nokStorage = state.actions["NOK"].localStorage;
+          return nokStorage.value.current >= 5000;
+        },
+        isUpgradeActive: (state) => {
+          return state.upgrades["ADDERALL"].active;
+        },
+      },
+      "FUNCTIONAL": {
+        id: "FUNCTIONAL",
+        title: "Functional Programming",
+        tooltipText: <div><p>Roy makes you adopt functional programming.</p><p>More software in fewer lines. You sell your LOC for double price.</p><p>Cost: 15000 NOK</p></div>,
+        logMessage: "Lets spend more time thinking than typing..",
+        localStorage: load("FUNCTIONAL"),
+        clickFunction: (state, updateCallback) => {
+          const nokStorage = state.actions["NOK"].localStorage;
+          state.upgrades["FUNCTIONAL"].localStorage.active = true;
+
+          nokStorage.value.current -= 15000;
+          nokStorage.value.production *= 2;
+
+          updateCallback(state.upgrades["FUNCTIONAL"].logMessage, state);
+        },
+        isButtonDisplayed: (state, updateCallback) => {
+          const nokStorage = state.actions["NOK"].localStorage;
+
+          if(nokStorage.value.current >= 10000 && !state.upgrades["FUNCTIONAL"].localStorage.hasBeenVisible) {
+            state.upgrades["FUNCTIONAL"].localStorage.hasBeenVisible = true;
+            updateCallback(state.upgrades["FUNCTIONAL"].logMessage, state);
+          }
+
+          return state.upgrades["FUNCTIONAL"].localStorage.hasBeenVisible && !state.upgrades["FUNCTIONAL"].localStorage.active;
+        },
+        isButtonEnabled: (state) => {
+          const nokStorage = state.actions["NOK"].localStorage;
+          return nokStorage.value.current >= 15000;
+        },
+        isUpgradeActive: (state) => {
+          return state.upgrades["FUNCTIONAL"].active;
+        },
+      },
+      "CLOUD": {
+        id: "CLOUD",
+        title: "Spam cloud",
+        tooltipText: <div><p>Roy makes you adopt functional programming.</p><p>More software in fewer lines. You sell your LOC for double price.</p><p>Cost: 15000 NOK</p></div>,
+        logMessage: "Lets spend more time thinking than typing..",
+        localStorage: load("CLOUD"),
+        clickFunction: (state, updateCallback) => {
+          const nokStorage = state.actions["NOK"].localStorage;
+          state.upgrades["CLOUD"].localStorage.active = true;
+
+          nokStorage.value.current -= 15000;
+          nokStorage.value.production *= 2;
+
+          updateCallback(state.upgrades["CLOUD"].logMessage, state);
+        },
+        isButtonDisplayed: (state, updateCallback) => {
+          const nokStorage = state.actions["NOK"].localStorage;
+
+          if(nokStorage.value.current >= 10000 && !state.upgrades["CLOUD"].localStorage.hasBeenVisible) {
+            state.upgrades["CLOUD"].localStorage.hasBeenVisible = true;
+            updateCallback(state.upgrades["CLOUD"].logMessage, state);
+          }
+
+          return state.upgrades["CLOUD"].localStorage.hasBeenVisible && !state.upgrades["CLOUD"].localStorage.active;
+        },
+        isButtonEnabled: (state) => {
+          const nokStorage = state.actions["NOK"].localStorage;
+          return nokStorage.value.current >= 15000;
+        },
+        isUpgradeActive: (state) => {
+          return state.upgrades["CLOUD"].active;
+        },
+      },
     },
     actions: {
       "LOC": {
@@ -160,8 +282,8 @@ export function initializeState() {
         localStorage: load("NOK"),
         disabledTime: load("NOK").disabledTime,
         hasTickFunction: false,
-        isButtonDisplayed: (state) => {
-          return isDisplayed("NOK", state.actions);
+        isButtonDisplayed: (state, updateCallback) => {
+          return isDisplayed("NOK", state.actions, updateCallback);
         },
         isButtonEnabled: (state) => {
           return isEnabled("NOK", state.actions);
@@ -191,8 +313,8 @@ export function initializeState() {
         localStorage: load("SPAM"),
         disabledTime: load("SPAM").disabledTime,
         hasTickFunction: true,
-        isButtonDisplayed: (state) => {
-          return isDisplayed("SPAM", state.actions)
+        isButtonDisplayed: (state, updateCallback) => {
+          return isDisplayed("SPAM", state.actions, updateCallback)
         },
         isButtonEnabled: (state) => {
           return isEnabled("SPAM", state.actions);
@@ -235,8 +357,8 @@ export function initializeState() {
         localStorage: load("INTERN"),
         disabledTime: load("INTERN").disabledTime,
         hasTickFunction: true,
-        isButtonDisplayed: (state) => {
-          return isDisplayed("INTERN", state.actions)
+        isButtonDisplayed: (state, updateCallback) => {
+          return isDisplayed("INTERN", state.actions, updateCallback)
         },
         isButtonEnabled: (state) => {
           return isEnabled("INTERN", state.actions);
@@ -273,8 +395,8 @@ export function initializeState() {
         localStorage: load("INTERNMANAGER"),
         disabledTime: load("INTERNMANAGER").disabledTime,
         hasTickFunction: true,
-        isButtonDisplayed: (state) => {
-          return isDisplayed("INTERNMANAGER", state.actions)
+        isButtonDisplayed: (state, updateCallback) => {
+          return isDisplayed("INTERNMANAGER", state.actions, updateCallback)
         },
         isButtonEnabled: (state) => {
           return isEnabled("INTERNMANAGER", state.actions);

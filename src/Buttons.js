@@ -52,7 +52,7 @@ class Buttons extends Component {
             {productionInfo}
           </div>;
 
-      if (action.isButton && action.isButtonDisplayed(state)) {
+      if (action.isButton && action.isButtonDisplayed(state, updateCallback)) {
         buttonsJsx.push(
             <TimedButton
                 key={action.id}
