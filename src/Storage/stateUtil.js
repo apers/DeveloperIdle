@@ -4,11 +4,10 @@ import * as React from "react";
 import App from "../App";
 
 export function loadState() {
+  migrate();
   if (!load("lastVisited")) {
     initializeGameStateStorage();
   }
-
-  migrate();
   return initializeState();
 }
 
@@ -16,7 +15,7 @@ function isDisplayed(resourceName, state, updateCallback) {
   let resourceStorage = state[resourceName].localStorage;
   let costStorage = state[resourceStorage.cost.name].localStorage;
 
-  if(costStorage.value.current >= resourceStorage.cost.displayAtValue && !resourceStorage.hasBeenVisible) {
+  if (costStorage.value.current >= resourceStorage.cost.displayAtValue && !resourceStorage.hasBeenVisible) {
     resourceStorage.hasBeenVisible = true;
   }
 
@@ -54,14 +53,14 @@ export function initializeGameStateStorage() {
     hasBeenVisible: false,
     disabledTime: 5,
     value: {
-      current: 0,
+      current: 20000,
       allTime: 0,
       production: 1000,
     },
     cost: {
       name: "LOC",
       amount: 100,
-      displayAtValue: 50,
+      displayAtValue: 0,
     },
   });
 
@@ -79,6 +78,7 @@ export function initializeGameStateStorage() {
       displayAtValue: 5000,
     },
     production: {
+      tickDelay: 1,
       name: "NOK",
       amount: 10,
       costName: "LOC",
@@ -100,11 +100,35 @@ export function initializeGameStateStorage() {
       displayAtValue: 20000,
     },
     production: {
+      tickDelay: 1,
       name: "LOC",
       amount: 2,
       costName: "NOK",
       cost: 0,
     }
+  });
+
+  save("ALEX", {
+    hasBeenVisible: false,
+    disabledTime: 4 * 60,
+    value: {
+      current: 0,
+      allTime: 0,
+      production: 1,
+    },
+    cost: {
+      name: "NOK",
+      amount: 250000,
+      displayAtValue: 100000,
+    },
+    production: {
+      tickDelay: 10,
+      tick: 0,
+      name: "SPAM",
+      amount: 1,
+      costName: "NOK",
+      cost: 0,
+    },
   });
 
   save("INTERNMANAGER", {
@@ -118,18 +142,20 @@ export function initializeGameStateStorage() {
     cost: {
       name: "NOK",
       amount: 500000,
-      displayAtValue: 100000,
+      displayAtValue: 150000,
     },
     production: {
+      tickDelay: 20,
+      tick: 0,
       name: "INTERN",
       amount: 1,
       costName: "NOK",
-      cost: 10000,
+      cost: 0,
     },
   });
 
   save("LEVERAGE", {
-    hasBeenVisible: true,
+    hasBeenVisible: false,
     disabledTime: 5,
 
     value: {
@@ -165,6 +191,27 @@ export function initializeGameStateStorage() {
     }
   });
 
+  save("BLOOD", {
+    hasBeenVisible: false,
+    disabledTime: 0,
+    value: {
+      current: 0,
+      allTime: 0,
+      production: 5,
+    },
+    cost: {
+      name: "INTERN",
+      amount: 1,
+      displayAtValue: 0,
+    },
+    production: {
+      name: "BLOOD",
+      amount: 5,
+      costName: "NOK",
+      cost: 0,
+    }
+  });
+
   save("ADDERALL", {
     active: false,
     hasBeenVisible: false,
@@ -181,6 +228,10 @@ export function initializeGameStateStorage() {
     active: false,
     hasBeenVisible: false,
   });
+  save("DEITY", {
+    active: false,
+    hasBeenVisible: false,
+  });
 }
 
 export function initializeState() {
@@ -189,7 +240,8 @@ export function initializeState() {
       "ADDERALL": {
         id: "ADDERALL",
         title: "Adderall",
-        tooltipText: <div><p>Get a prescription for adderall.</p><p>You produce 25 LOC every click.</p><p>Cost: 5000 NOK</p></div>,
+        tooltipText: <div><p>Get a prescription for adderall.</p><p>You produce 25 LOC every click.</p>
+          <p>Cost: 5000 NOK</p></div>,
         logMessage: "Side effects include loss of appetite, weight loss, dry mouth, stomach upset/pain, nausea/vomiting, dizziness....",
         localStorage: load("ADDERALL"),
         clickFunction: (state, updateCallback) => {
@@ -205,7 +257,7 @@ export function initializeState() {
         isButtonDisplayed: (state, updateCallback) => {
           const nokStorage = state.actions["NOK"].localStorage;
 
-          if(nokStorage.value.current >= 3000 && !state.upgrades["ADDERALL"].localStorage.hasBeenVisible) {
+          if (nokStorage.value.current >= 3000 && !state.upgrades["ADDERALL"].localStorage.hasBeenVisible) {
             state.upgrades["ADDERALL"].localStorage.hasBeenVisible = true;
             updateCallback(null, state);
           }
@@ -223,7 +275,8 @@ export function initializeState() {
       "FUNCTIONAL": {
         id: "FUNCTIONAL",
         title: "Functional Programming",
-        tooltipText: <div><p>Roy makes you adopt functional programming.</p><p>More software in fewer lines. You sell your LOC for double price.</p><p>Cost: 15000 NOK</p></div>,
+        tooltipText: <div><p>Roy makes you adopt functional programming.</p>
+          <p>More software in fewer lines. You sell your LOC for double price.</p><p>Cost: 15000 NOK</p></div>,
         logMessage: "Lets spend more time thinking than typing..",
         localStorage: load("FUNCTIONAL"),
         clickFunction: (state, updateCallback) => {
@@ -238,7 +291,7 @@ export function initializeState() {
         isButtonDisplayed: (state, updateCallback) => {
           const nokStorage = state.actions["NOK"].localStorage;
 
-          if(nokStorage.value.current >= 10000 && !state.upgrades["FUNCTIONAL"].localStorage.hasBeenVisible) {
+          if (nokStorage.value.current >= 10000 && !state.upgrades["FUNCTIONAL"].localStorage.hasBeenVisible) {
             state.upgrades["FUNCTIONAL"].localStorage.hasBeenVisible = true;
             updateCallback(null, state);
           }
@@ -256,7 +309,8 @@ export function initializeState() {
       "CLOUD": {
         id: "CLOUD",
         title: "Spam cloud",
-        tooltipText: <div><p>Alexander moves your spam bots to AWS doubling their production.</p><p>Cost: 30000 NOK</p></div>,
+        tooltipText: <div><p>Alexander moves your spam bots to AWS doubling their production.</p><p>Cost: 30000 NOK</p>
+        </div>,
         logMessage: "I love the smell of server configuration in the morning!",
         localStorage: load("CLOUD"),
         clickFunction: (state, updateCallback) => {
@@ -274,7 +328,7 @@ export function initializeState() {
         isButtonDisplayed: (state, updateCallback) => {
           const nokStorage = state.actions["NOK"].localStorage;
 
-          if(nokStorage.value.current >= 30000 && !state.upgrades["CLOUD"].localStorage.hasBeenVisible) {
+          if (nokStorage.value.current >= 30000 && !state.upgrades["CLOUD"].localStorage.hasBeenVisible) {
             state.upgrades["CLOUD"].localStorage.hasBeenVisible = true;
             updateCallback(null, state);
           }
@@ -292,7 +346,8 @@ export function initializeState() {
       "FEEDINGTUBE": {
         id: "FEEDINGTUBE",
         title: "Pneumatic feeding tubes",
-        tooltipText: <div><p>Install a pneumatic pellet feeding system for your developers.</p><p>Doubles the production of your summer interns.</p><p>Cost: 150000 NOK</p></div>,
+        tooltipText: <div><p>Install a pneumatic pellet feeding system for your developers.</p>
+          <p>Doubles the production of your summer interns.</p><p>Cost: 150000 NOK</p></div>,
         logMessage: "Mmmmmmmmmm... nutritious pellets.",
         localStorage: load("FEEDINGTUBE"),
         clickFunction: (state, updateCallback) => {
@@ -309,7 +364,7 @@ export function initializeState() {
         isButtonDisplayed: (state, updateCallback) => {
           const nokStorage = state.actions["NOK"].localStorage;
 
-          if(nokStorage.value.current >= 100000 && !state.upgrades["FEEDINGTUBE"].localStorage.hasBeenVisible) {
+          if (nokStorage.value.current >= 100000 && !state.upgrades["FEEDINGTUBE"].localStorage.hasBeenVisible) {
             state.upgrades["FEEDINGTUBE"].localStorage.hasBeenVisible = true;
             updateCallback(null, state);
           }
@@ -322,6 +377,40 @@ export function initializeState() {
         },
         isUpgradeActive: (state) => {
           return state.upgrades["FEEDINGTUBE"].active;
+        },
+      },
+      "DEITY": {
+        id: "DEITY",
+        title: "Get religious status",
+        tooltipText: <div><p>Use your political leverage to get your company official religious status. Making Roy a deity in the Church of Higher Order Functions.</p>
+          <p>Cost: 2000 political leverage</p></div>,
+        logMessage: "Turns out atheism was to simple.",
+        localStorage: load("DEITY"),
+        clickFunction: (state, updateCallback) => {
+          const leverageStorage = state.actions["LEVERAGE"].localStorage;
+          state.upgrades["DEITY"].localStorage.active = true;
+
+          leverageStorage.value.current -= 2000;
+
+          // Effect
+          updateCallback(state.upgrades["DEITY"].logMessage, state);
+        },
+        isButtonDisplayed: (state, updateCallback) => {
+          const leverageStorage = state.actions["LEVERAGE"].localStorage;
+
+          if (leverageStorage.value.current >= 1000 && !state.upgrades["DEITY"].localStorage.hasBeenVisible) {
+            state.upgrades["DEITY"].localStorage.hasBeenVisible = true;
+            updateCallback(null, state);
+          }
+
+          return state.upgrades["DEITY"].localStorage.hasBeenVisible && !state.upgrades["DEITY"].localStorage.active;
+        },
+        isButtonEnabled: (state) => {
+          const leverageStorage = state.actions["LEVERAGE"].localStorage;
+          return leverageStorage.value.current >= 2000;
+        },
+        isUpgradeActive: (state) => {
+          return state.upgrades["DEITY"].active;
         },
       },
     },
@@ -371,7 +460,6 @@ export function initializeState() {
           const nokStorage = state.actions["NOK"].localStorage;
           const locStorage = state.actions["LOC"].localStorage;
 
-
           nokStorage.value.current += nokStorage.value.production;
           nokStorage.value.allTime += nokStorage.value.production;
 
@@ -414,8 +502,8 @@ export function initializeState() {
           const locStorage = state.actions["LOC"].localStorage;
           const nokStorage = state.actions["NOK"].localStorage;
 
-          if(spamStorage.value.current !== 0 && locStorage.value.current >= spamStorage.production.cost) {
-            let botsThatCanSell = Math.floor(locStorage.value.current/spamStorage.production.cost);
+          if (spamStorage.value.current !== 0 && locStorage.value.current >= spamStorage.production.cost) {
+            let botsThatCanSell = Math.floor(locStorage.value.current / spamStorage.production.cost);
             botsThatCanSell = Math.min(botsThatCanSell, spamStorage.value.current);
 
             locStorage.value.current -= botsThatCanSell * spamStorage.production.cost;
@@ -446,7 +534,6 @@ export function initializeState() {
           const internStorage = state.actions["INTERN"].localStorage;
           const nokStorage = state.actions["NOK"].localStorage;
 
-
           internStorage.value.current += internStorage.value.production;
           internStorage.value.allTime += internStorage.value.production;
 
@@ -462,6 +549,47 @@ export function initializeState() {
           locStorage.value.allTime += internStorage.value.current * internStorage.production.amount;
 
           updateCallback(null, state);
+        }
+      },
+      "ALEX": {
+        id: "ALEX",
+        title: "Hire FSB Agents",
+        tooltipText: <div><p>Get your old friend Alexander Bortnikov to take care of all your spambot needs.</p></div>,
+        scoreLabel: "FSB Agents",
+        logMessage: "Ваше здоровье!",
+        isButton: true,
+        localStorage: load("ALEX"),
+        disabledTime: load("ALEX").disabledTime,
+        hasTickFunction: true,
+        isButtonDisplayed: (state, updateCallback) => {
+          return isDisplayed("ALEX", state.actions, updateCallback)
+        },
+        isButtonEnabled: (state) => {
+          return isEnabled("ALEX", state.actions);
+        },
+        clickFunction: (state, updateCallback) => {
+          const alexStorage = state.actions["ALEX"].localStorage;
+          const nokStorage = state.actions["NOK"].localStorage;
+
+          alexStorage.value.current += alexStorage.value.production;
+          alexStorage.value.allTime += alexStorage.value.production;
+
+          nokStorage.value.current -= alexStorage.cost.amount;
+
+          updateCallback(state.actions["ALEX"].logMessage, state);
+        },
+        tickFunction: (state, updateCallback) => {
+          const alexStorage = state.actions["ALEX"].localStorage;
+          const spamStorage = state.actions["SPAM"].localStorage;
+
+          alexStorage.production.tick++;
+          if (alexStorage.production.tick >= alexStorage.production.tickDelay) {
+            alexStorage.production.tick = 0;
+            spamStorage.value.current += alexStorage.value.current * alexStorage.production.amount;
+            spamStorage.value.allTime += alexStorage.value.current * alexStorage.production.amount;
+
+            updateCallback(null, state);
+          }
         }
       },
       "INTERNMANAGER": {
@@ -495,10 +623,14 @@ export function initializeState() {
           const internManagerStorage = state.actions["INTERNMANAGER"].localStorage;
           const internStorage = state.actions["INTERN"].localStorage;
 
-          internStorage.value.current += internManagerStorage.value.current * internManagerStorage.production.amount;
-          internStorage.value.allTime += internManagerStorage.value.current * internManagerStorage.production.amount;
+          internManagerStorage.production.tick++;
+          if (internManagerStorage.production.tick >= internManagerStorage.production.tickDelay) {
+            internManagerStorage.production.tick = 0;
+            internStorage.value.current += internManagerStorage.value.current * internManagerStorage.production.amount;
+            internStorage.value.allTime += internManagerStorage.value.current * internManagerStorage.production.amount;
 
-          updateCallback(null, state);
+            updateCallback(null, state);
+          }
         }
       },
       "LEVERAGE": {
@@ -550,7 +682,6 @@ export function initializeState() {
           const lobbyistStorage = state.actions["LOBBYIST"].localStorage;
           const nokStorage = state.actions["NOK"].localStorage;
 
-
           lobbyistStorage.value.current += lobbyistStorage.value.production;
           lobbyistStorage.value.allTime += lobbyistStorage.value.production;
 
@@ -566,6 +697,37 @@ export function initializeState() {
           leverageStorage.value.allTime += lobbyistStorage.value.current * lobbyistStorage.production.amount;
 
           updateCallback(null, state);
+        }
+      },
+      "BLOOD": {
+        id: "BLOOD",
+        title: "Sacrifice",
+        tooltipText: "Sacrifice a summer intern to Roy god of Monads.",
+        scoreLabel: "Virgin blood",
+        logMessage: "Reliable old human sacrifice",
+        isButton: true,
+        localStorage: load("BLOOD"),
+        disabledTime: load("BLOOD").disabledTime,
+        hasTickFunction: true,
+        isButtonDisplayed: (state, updateCallback) => {
+          console.log(state.upgrades["DEITY"].localStorage.active);
+          return state.upgrades["DEITY"].localStorage.active;
+        },
+        isButtonEnabled: (state) => {
+          return isEnabled("BLOOD", state.actions);
+        },
+        clickFunction: (state, updateCallback) => {
+          const bloodStorage = state.actions["BLOOD"].localStorage;
+          const internStorage = state.actions["INTERN"].localStorage;
+
+          bloodStorage.value.current += bloodStorage.value.production;
+          bloodStorage.value.allTime += bloodStorage.value.production;
+
+          internStorage.value.current -= bloodStorage.cost.amount;
+
+          updateCallback(state.actions["BLOOD"].logMessage, state);
+        },
+        tickFunction: (state, updateCallback) => {
         }
       },
     }

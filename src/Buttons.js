@@ -38,7 +38,9 @@ class Buttons extends Component {
                 action.localStorage.production.amount +
                 " " +
                 getScoreLabel(action.localStorage.production.name, state) +
-                " every tick"
+                " every " +
+                action.localStorage.production.tickDelay +
+                " tick"
               }
             </div>
         );
