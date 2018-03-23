@@ -14,9 +14,11 @@ export function updateLocalStorage(state) {
   save("SPAM", state.actions["SPAM"].localStorage);
   save("INTERN", state.actions["INTERN"].localStorage);
   save("INTERNMANAGER", state.actions["INTERNMANAGER"].localStorage);
+  save("LEVERAGE", state.actions["LEVERAGE"].localStorage);
 
   // Upgrades
   save("ADDERALL", state.upgrades["ADDERALL"].localStorage);
   save("FUNCTIONAL", state.upgrades["FUNCTIONAL"].localStorage);
   save("CLOUD", state.upgrades["CLOUD"].localStorage);
+  save("FEEDINGTUBE", state.upgrades["CLOUD"].localStorage);
 }

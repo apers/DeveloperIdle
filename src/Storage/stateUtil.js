@@ -54,8 +54,8 @@ export function initializeGameStateStorage() {
     hasBeenVisible: false,
     disabledTime: 5,
     value: {
-      current: 500000,
-      allTime: 500000,
+      current: 0,
+      allTime: 0,
       production: 1000,
     },
     cost: {
@@ -88,7 +88,7 @@ export function initializeGameStateStorage() {
 
   save("INTERN", {
     hasBeenVisible: false,
-    disabledTime: 30,
+    disabledTime: 2 * 60,
     value: {
       current: 0,
       allTime: 0,
@@ -128,6 +128,43 @@ export function initializeGameStateStorage() {
     },
   });
 
+  save("LEVERAGE", {
+    hasBeenVisible: true,
+    disabledTime: 5,
+
+    value: {
+      current: 0,
+      allTime: 0,
+      production: 100,
+    },
+    cost: {
+      name: "NOK",
+      amount: 100000,
+      displayAtValue: 1000000,
+    },
+  });
+
+  save("LOBBYIST", {
+    hasBeenVisible: false,
+    disabledTime: 6 * 60,
+    value: {
+      current: 0,
+      allTime: 0,
+      production: 1,
+    },
+    cost: {
+      name: "NOK",
+      amount: 10000000,
+      displayAtValue: 7000000,
+    },
+    production: {
+      name: "LEVERAGE",
+      amount: 100,
+      costName: "NOK",
+      cost: 0,
+    }
+  });
+
   save("ADDERALL", {
     active: false,
     hasBeenVisible: false,
@@ -137,6 +174,10 @@ export function initializeGameStateStorage() {
     hasBeenVisible: false,
   });
   save("CLOUD", {
+    active: false,
+    hasBeenVisible: false,
+  });
+  save("FEEDINGTUBE", {
     active: false,
     hasBeenVisible: false,
   });
@@ -248,6 +289,41 @@ export function initializeState() {
           return state.upgrades["CLOUD"].active;
         },
       },
+      "FEEDINGTUBE": {
+        id: "FEEDINGTUBE",
+        title: "Pneumatic feeding tubes",
+        tooltipText: <div><p>Install a pneumatic pellet feeding system for your developers.</p><p>Doubles the production of your summer interns.</p><p>Cost: 150000 NOK</p></div>,
+        logMessage: "Mmmmmmmmmm... nutritious pellets.",
+        localStorage: load("FEEDINGTUBE"),
+        clickFunction: (state, updateCallback) => {
+          const nokStorage = state.actions["NOK"].localStorage;
+          const internStorage = state.actions["INTERN"].localStorage;
+          state.upgrades["FEEDINGTUBE"].localStorage.active = true;
+
+          nokStorage.value.current -= 150000;
+
+          internStorage.production.amount *= 2;
+
+          updateCallback(state.upgrades["FEEDINGTUBE"].logMessage, state);
+        },
+        isButtonDisplayed: (state, updateCallback) => {
+          const nokStorage = state.actions["NOK"].localStorage;
+
+          if(nokStorage.value.current >= 100000 && !state.upgrades["FEEDINGTUBE"].localStorage.hasBeenVisible) {
+            state.upgrades["FEEDINGTUBE"].localStorage.hasBeenVisible = true;
+            updateCallback(null, state);
+          }
+
+          return state.upgrades["FEEDINGTUBE"].localStorage.hasBeenVisible && !state.upgrades["FEEDINGTUBE"].localStorage.active;
+        },
+        isButtonEnabled: (state) => {
+          const nokStorage = state.actions["NOK"].localStorage;
+          return nokStorage.value.current >= 150000;
+        },
+        isUpgradeActive: (state) => {
+          return state.upgrades["FEEDINGTUBE"].active;
+        },
+      },
     },
     actions: {
       "LOC": {
@@ -311,7 +387,7 @@ export function initializeState() {
         title: "Buy spambots",
         tooltipText: "Send illicit spam to sell software",
         scoreLabel: "Spambots",
-        logMessage: "I am contacting you for business opportunity!",
+        logMessage: "I am contacting you for a business opportunity!",
         isButton: true,
         localStorage: load("SPAM"),
         disabledTime: load("SPAM").disabledTime,
@@ -421,6 +497,73 @@ export function initializeState() {
 
           internStorage.value.current += internManagerStorage.value.current * internManagerStorage.production.amount;
           internStorage.value.allTime += internManagerStorage.value.current * internManagerStorage.production.amount;
+
+          updateCallback(null, state);
+        }
+      },
+      "LEVERAGE": {
+        id: "LEVERAGE",
+        title: "Canvassing",
+        tooltipText: "Do some canvassing to gain political leverage",
+        scoreLabel: "Political leverage",
+        logMessage: "Do you have a minute to talk about our lord and savior?",
+        isButton: true,
+        localStorage: load("LEVERAGE"),
+        disabledTime: load("LEVERAGE").disabledTime,
+        hasTickFunction: false,
+        isButtonDisplayed: (state, updateCallback) => {
+          return isDisplayed("LEVERAGE", state.actions, updateCallback)
+        },
+        isButtonEnabled: (state) => {
+          return isEnabled("LEVERAGE", state.actions);
+        },
+        clickFunction: (state, updateCallback) => {
+          const leverageStore = state.actions["LEVERAGE"].localStorage;
+          const nokStorage = state.actions["NOK"].localStorage;
+
+          nokStorage.value.current -= leverageStore.cost.amount;
+
+          leverageStore.value.current += leverageStore.value.production;
+          leverageStore.value.allTime += leverageStore.value.production;
+          updateCallback(state.actions["LEVERAGE"].logMessage, state);
+        },
+        tickFunction: () => {
+        }
+      },
+      "LOBBYIST": {
+        id: "LOBBYIST",
+        title: "Hire a lobbyist to gain political leverage",
+        tooltipText: "Hire a lobbyist to gain political leverage.",
+        scoreLabel: "Lobbyists",
+        logMessage: "To the java mines code monkey..",
+        isButton: true,
+        localStorage: load("LOBBYIST"),
+        disabledTime: load("LOBBYIST").disabledTime,
+        hasTickFunction: true,
+        isButtonDisplayed: (state, updateCallback) => {
+          return isDisplayed("LOBBYIST", state.actions, updateCallback)
+        },
+        isButtonEnabled: (state) => {
+          return isEnabled("LOBBYIST", state.actions);
+        },
+        clickFunction: (state, updateCallback) => {
+          const lobbyistStorage = state.actions["LOBBYIST"].localStorage;
+          const nokStorage = state.actions["NOK"].localStorage;
+
+
+          lobbyistStorage.value.current += lobbyistStorage.value.production;
+          lobbyistStorage.value.allTime += lobbyistStorage.value.production;
+
+          nokStorage.value.current -= lobbyistStorage.cost.amount;
+
+          updateCallback(state.actions["LOBBYIST"].logMessage, state);
+        },
+        tickFunction: (state, updateCallback) => {
+          const lobbyistStorage = state.actions["LOBBYIST"].localStorage;
+          const leverageStorage = state.actions["LEVERAGE"].localStorage;
+
+          leverageStorage.value.current += lobbyistStorage.value.current * lobbyistStorage.production.amount;
+          leverageStorage.value.allTime += lobbyistStorage.value.current * lobbyistStorage.production.amount;
 
           updateCallback(null, state);
         }
